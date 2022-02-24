@@ -21,18 +21,18 @@ class Company
         return json_decode(curl_exec($curlCompaniesSession), true);
     }
 
-    public function buildCompanyTree($jsonTravelsData, array $elements, $parentId = "0")
+    public function buildCompanyTree($travelsData, array $elements, $parentId = "0")
     {
         $output = array();
         foreach ($elements as $element) {
             if ($element['parentId'] == $parentId) {
                 unset($element['createdAt']);
                 $element['cost'] = 0;
-                $children = $this->buildCompanyTree($jsonTravelsData, $elements, $element['id']);
+                $children = $this->buildCompanyTree($travelsData, $elements, $element['id']);
                 if ($children) {
                     $element['children'] = $children;
                 }
-                $travels = array_filter($jsonTravelsData, function($ar) use($element) {
+                $travels = array_filter($travelsData, function($ar) use($element) {
                     return ($ar['companyId'] == $element['id']);
                 });
                 $prices = array_column($travels, 'price');
@@ -67,7 +67,7 @@ class TestScript
         $company = new Company();
         $result = $company->buildCompanyTree($travel->getTravels(), $company->getCompanies());
         $company->sumCosts($result[0]);
-        var_dump($result);
+        echo json_encode($result);
         echo 'Total time: '.  (microtime(true) - $start);
     }
 }
